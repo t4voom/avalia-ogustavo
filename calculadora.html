@@ -66,25 +66,25 @@
     </div>
 
     <script>
-        // armazena a conta
+       
         let expressaoAtual = ''; 
-        // elemento html onde o resultado é mostrado
+       
         const Display = document.getElementById('display');
 
         function atualizarDisplay() {
-            // se a expressao estiver vazia mostra 0 senao mostra a expressao atual
+            
             Display.innerText = expressaoAtual === '' ? '0' : expressaoAtual;
         }
 
-        // limpa a expressao e o display
+      
         function limparTudo() {
             expressaoAtual = '';
             atualizarDisplay(); 
         }
 
-        // adiciona numero ou Ponto
+     
         function adicionarCaractere(caracter) {
-            // limpa o display se estiver em 0 ou Erro!
+         
             if (expressaoAtual === '0' || expressaoAtual === 'Erro!') {
                  expressaoAtual = '';
             }
@@ -94,15 +94,12 @@
             atualizarDisplay();
         }
 
-        // adicionar operador +, -, *, /
+       
         function appendOperator(operador) {
-            // nao deixa adicionar operador se a expressao estiver vazia exceto o -
             if (expressaoAtual === '' && operador !== '-') return;
-            
-            // variavel ultimo caractere, -1 pega o ultimo caracter
             const ultimoCaracter = expressaoAtual.slice(-1);
             
-            // ultimo caracter ja for um operador, substitui pelo novo 5+ vira 5-
+            
             if ('+-*/'.includes(ultimoCaracter)) {
                 expressaoAtual = expressaoAtual.slice(0, -1) + operador; 
             } else {
@@ -112,21 +109,20 @@
             atualizarDisplay();
         }
 
-        // calcula o resultado
+    
         function calculate() {
             try {
-                // comando eval executa a string da expressao
-                const resultado = eval(expressaoAtual);
-                // arredonda para evitar problemas de ponto flutuante
-                expressaoAtual = String(Math.round(resultado * 1000000) / 1000000); 
+              const resultado = eval(expressaoAtual);
+             expressaoAtual = String(Math.round(resultado * 1000000) / 1000000); 
             } catch (erro) {
                 expressaoAtual = 'Erro!';
             }
             atualizarDisplay();
         }
 
-        // inicializa o display ao carregar a pagina
+
         atualizarDisplay();
     </script>
 </body>
+
 </html>
