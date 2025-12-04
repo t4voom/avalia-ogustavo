@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    
+    <style>
+        .calculator {
+            width: 250px;
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        .display {
+            background-color: #eee;
+            padding: 10px;
+            font-size: 2em;
+            margin-bottom: 10px;
+            min-height: 1.2em;
+            text-align: right;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        button {
+            padding: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+
+        <div class="buttons">
+            <button onclick="limparTudo()">C</button>
+            <button onclick="appendOperator('/')">/</button>
+            <button onclick="appendOperator('*')">*</button>
+            <button onclick="appendOperator('-')">-</button>
+
+            <button onclick="adicionarCaractere(7)">7</button>
+            <button onclick="adicionarCaractere(8)">8</button>
+            <button onclick="adicionarCaractere(9)">9</button>
+            
+            <button onclick="appendOperator('+')" style="grid-row: span 2; grid-column: 4;">+</button>
+
+            <button onclick="adicionarCaractere(4)">4</button>
+            <button onclick="adicionarCaractere(5)">5</button>
+            <button onclick="adicionarCaractere(6)">6</button>
+
+            <button onclick="adicionarCaractere(1)">1</button>
+            <button onclick="adicionarCaractere(2)">2</button>
+            <button onclick="adicionarCaractere(3)">3</button>
+
+            <button onclick="adicionarCaractere(0)" style="grid-column: span 2;">0</button>
+            <button onclick="adicionarCaractere('.')">.</button>
+            
+            <button onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        // armazena a conta
+        let expressaoAtual = ''; 
+        // elemento html onde o resultado é mostrado
+        const Display = document.getElementById('display');
+
+        function atualizarDisplay() {
+            // se a expressao estiver vazia mostra 0 senao mostra a expressao atual
+            Display.innerText = expressaoAtual === '' ? '0' : expressaoAtual;
+        }
+
+        // limpa a expressao e o display
+        function limparTudo() {
+            expressaoAtual = '';
+            atualizarDisplay(); 
+        }
+
+        // adiciona numero ou Ponto
+        function adicionarCaractere(caracter) {
+            // limpa o display se estiver em 0 ou Erro!
+            if (expressaoAtual === '0' || expressaoAtual === 'Erro!') {
+                 expressaoAtual = '';
+            }
+            
+
+            expressaoAtual += caracter;
+            atualizarDisplay();
+        }
+
+        // adicionar operador +, -, *, /
+        function appendOperator(operador) {
+            // nao deixa adicionar operador se a expressao estiver vazia exceto o -
+            if (expressaoAtual === '' && operador !== '-') return;
+            
+            // variavel ultimo caractere, -1 pega o ultimo caracter
+            const ultimoCaracter = expressaoAtual.slice(-1);
+            
+            // ultimo caracter ja for um operador, substitui pelo novo 5+ vira 5-
+            if ('+-*/'.includes(ultimoCaracter)) {
+                expressaoAtual = expressaoAtual.slice(0, -1) + operador; 
+            } else {
+                expressaoAtual += operador;
+            }
+            
+            atualizarDisplay();
+        }
+
+        // calcula o resultado
+        function calculate() {
+            try {
+                // comando eval executa a string da expressao
+                const resultado = eval(expressaoAtual);
+                // arredonda para evitar problemas de ponto flutuante
+                expressaoAtual = String(Math.round(resultado * 1000000) / 1000000); 
+            } catch (erro) {
+                expressaoAtual = 'Erro!';
+            }
+            atualizarDisplay();
+        }
+
+        // inicializa o display ao carregar a pagina
+        atualizarDisplay();
+    </script>
+</body>
+</html>

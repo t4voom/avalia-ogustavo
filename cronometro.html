@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronometro</title>
+    
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 50px;
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: white;
+            gap: 40px;
+        }
+        .secao-cronometro {
+            padding: 30px;
+            text-align: center;
+        }
+        #display-tempo {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: white;
+            font-weight: bold;
+        }
+        .botoes button {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        #iniciar { background-color: #28a745; color: white; }
+        #pausar { background-color: #ffc107; color: #333; }
+        #resetar { background-color: #dc3545; color: white; }
+        
+        .secao-pausas {
+            background-color: #f8f8f8;
+            color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            width: 200px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #lista-pausas {
+            list-style: none;
+            padding: 0;
+        }
+        #lista-pausas li {
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="secao-cronometro">
+        <div id="display-tempo">00:00:00</div>
+
+        <div class="botoes">
+            <button id="iniciar" onclick="iniciarCronometro()">Iniciar (Espaço)</button>
+            <button id="pausar" onclick="pausarCronometro()" disabled>Pausar (P)</button>
+            <button id="resetar" onclick="resetarCronometro()" disabled>Resetar (R)</button>
+        </div>
+    </div>
+    
+    <div class="secao-pausas">
+        <h3>Paradas Registradas</h3>
+        <ul id="lista-pausas">
+            </ul>
+    </div>
+
+    <script>
+        // variaveis
+        let idIntervalo; // ID do agendamento
+        let tempoDecorrido = 0; // tempo em milissegundos
+        let rodando = false; // estado do cronometro
+        let pausas = []; // array para armazenar os registros de pausa
+        
+        // referencias DOM
+        const elementoDisplay = document.getElementById('display-tempo');
+        const listaPausasElemento = document.getElementById('lista-pausas');
+        const botaoIniciar = document.getElementById('iniciar');
+        const botaoPausar = document.getElementById('pausar');
+        const botaoResetar = document.getElementById('resetar');
+
+        // funçao formatar milissegundos em hora:minuto:segundo
+        function formatarTempo(milisegundos) {
+            //calcula horas
+            const horas = Math.floor(milisegundos / 3600000);
+            //calcula minutos
+            const minutos = Math.floor((milisegundos % 3600000) / 60000);
+            //calcula segundos
+            const segundos = Math.floor((milisegundos % 60000) / 1000);
+
+            // adiciona um zero inicial
+            const formatar = (unidade) => String(unidade).padStart(2, '0');
+
+            return `${formatar(horas)}:${formatar(minutos)}:${formatar(segundos)}`;
+        }
+
+        // atualizar o tempo a cada segundo
+        function atualizarCronometro() {
+            // adiciona 1000ms
+            tempoDecorrido += 1000;
+            
+            // atualiza o display
+            elementoDisplay.innerText = formatarTempo(tempoDecorrido);
+        }
+        
+        // listar pausa
+        function listarPausas() {
+            listaPausasElemento.innerHTML = '';
+            
+            pausas.forEach((tempoPausa, indice) => {
+                // cria e adiciona o item novo a lita utilizando o li
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${indice + 1}.</span> 
+                    <span>${formatarTempo(tempoPausa)}</span>
+                `;
+                listaPausasElemento.appendChild(li);
+            });
+        }
+
+        // iniciar
+        function iniciarCronometro() {
+            if (rodando) return;
+
+            // Inicia o setinterval e salva o ID
+            idIntervalo = setInterval(atualizarCronometro, 1000);
+            rodando = true;
+
+            // atualiza botoes
+            botaoIniciar.disabled = true;
+            botaoPausar.disabled = false;
+            botaoResetar.disabled = false;
+        }
+
+        // pausar
+        function pausarCronometro() {
+            if (!rodando) return;
+            
+            // registra a pausa
+            pausas.push(tempoDecorrido);
+            listarPausas();
+
+            // para o temporizador
+            clearInterval(idIntervalo);
+            rodando = false;
+
+            // atualiza botoes
+            botaoIniciar.disabled = false;
+            botaoPausar.disabled = true;
+        }
+
+        // resetar
+        function resetarCronometro() {
+            // para o contador
+            clearInterval(idIntervalo); 
+            rodando = false;
+            
+            // zera as variaveis
+            tempoDecorrido = 0;
+            pausas = [];
+            
+            // zera o display e a lista
+            elementoDisplay.innerText = "00:00:00";
+            listarPausas();
+
+            // atualiza botoes para o normal
+            botaoIniciar.disabled = false;
+            botaoPausar.disabled = true;
+            botaoResetar.disabled = true;
+        }
+        
+
+        document.addEventListener('keydown', (evento) => {
+            const tecla = evento.key.toLowerCase();
+            
+            if (tecla === ' ') { // tecla espaço inicia pausa
+                evento.preventDefault();
+                if (rodando) {
+                    pausarCronometro();
+                } else {
+                    iniciarCronometro();
+                }
+            } else if (tecla === 'p' && rodando) { // tecla P pausa
+                pausarCronometro();
+            } else if (tecla === 'r') { // tecla R resetar
+                resetarCronometro();
+            }
+        });
+
+
+        resetarCronometro();
+    </script>
+</body>
+</html>

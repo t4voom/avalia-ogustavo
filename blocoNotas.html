@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloco de Notas</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f8f8;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        input, textarea {
+            width: 95%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #lista-notas {
+            list-style: none;
+            padding: 0;
+        }
+        .item-nota {
+            padding: 10px;
+            margin-bottom: 5px;
+            background: #e9ecef;
+            border-left: 4px solid #007bff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-nota:hover {
+            background: #dee2e6; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Minhas Notas</h1>
+
+        <div class="form-nota">
+            <input type="hidden" id="nota-id">
+            <input type="text" id="nota-titulo" placeholder="Título" required>
+            <textarea id="nota-conteudo" placeholder="Conteúdo da Nota" rows="3" required></textarea>
+            
+            <button onclick="salvarNota()" style="background-color: #28a745; color: white;">Salvar</button>
+            <button onclick="limparFormulario()" style="background-color: #6c757d; color: white;">Cancelar</button>
+        </div>
+
+        <hr>
+
+        <h2>Notas Salvas</h2>
+        <ul id="lista-notas">
+            </ul>
+    </div>
+
+    <script>
+        // Chave local
+        const CHAVE_STORAGE = 'minhasNotasSimples';
+        
+        //dom
+        const listaNotasElemento = document.getElementById('lista-notas');
+        const inputId = document.getElementById('nota-id');
+        const inputTitulo = document.getElementById('nota-titulo');
+        const inputConteudo = document.getElementById('nota-conteudo');
+
+    
+
+        // carrega notas do localstorage
+        function carregarNotas() {
+            // carregar JSON e converter para lista de objetos
+            const notasString = localStorage.getItem(CHAVE_STORAGE);
+            return notasString ? JSON.parse(notasString) : [];
+        }
+
+        // salva notas no localstorage
+        function armazenarNotas(notas) {
+            // mantem as notas salvas em formato JSON
+            localStorage.setItem(CHAVE_STORAGE, JSON.stringify(notas));
+        }
+
+        // listagem
+        function listarNotas() {
+            const notas = carregarNotas();
+            listaNotasElemento.innerHTML = ''; 
+
+            if (notas.length === 0) {
+                listaNotasElemento.innerHTML = '<li>Nenhuma nota encontrada.</li>';
+                return;
+            }
+
+            notas.forEach(nota => {
+                const li = document.createElement('li');
+                li.className = 'item-nota';
+                
+                // abrir ao clicar
+                li.innerHTML = `
+                    <span style="flex-grow: 1;" onclick="prepararEdicao('${nota.id}')">
+                        <strong>${nota.titulo}</strong>
+                        <small> - ${nota.conteudo.substring(0, 40)}...</small>
+                    </span>
+                    <button onclick="excluirNota('${nota.id}')" style="background-color: #dc3545; color: white;">Excluir</button>
+                `;
+                listaNotasElemento.appendChild(li);
+            });
+        }
+        
+        // salvar nota
+        function salvarNota() {
+            const titulo = inputTitulo.value.trim();
+            const conteudo = inputConteudo.value.trim();
+
+            if (!titulo || !conteudo) {
+                alert("Preencha o título e o conteúdo.");
+                return;
+            }
+
+            let notas = carregarNotas();
+            const idAtual = inputId.value;
+
+            if (idAtual) {
+                // editar nota
+                const notaExistente = notas.find(n => n.id === idAtual);
+                if (notaExistente) {
+                    notaExistente.titulo = titulo;
+                    notaExistente.conteudo = conteudo;
+                }
+            } else {
+                // criar nota
+                const novaNota = {
+                    id: Date.now().toString(), // ID simples
+                    titulo: titulo,
+                    conteudo: conteudo
+                };
+                notas.push(novaNota);
+            }
+
+            armazenarNotas(notas);
+            limparFormulario();
+            listarNotas();
+        }
+
+        // função de preparar para edição
+        function prepararEdicao(id) {
+            const notas = carregarNotas();
+            const notaParaEditar = notas.find(n => n.id === id);
+
+            if (notaParaEditar) {
+                inputId.value = notaParaEditar.id;
+                inputTitulo.value = notaParaEditar.titulo;
+                inputConteudo.value = notaParaEditar.conteudo;
+            }
+        }
+        
+        // excluir nota
+        function excluirNota(id) {
+
+            if (confirm("Você tem certeza que quer deletar esta nota?")) {
+                let notas = carregarNotas();
+                // filtro para nota
+                notas = notas.filter(n => n.id !== id);
+
+                armazenarNotas(notas);
+                limparFormulario();
+                listarNotas();
+            }
+        }
+        
+        // limpar formulario
+        function limparFormulario() {
+            inputId.value = '';
+            inputTitulo.value = '';
+            inputConteudo.value = '';
+        }
+
+        // carrega e lista as notas existentes ao carregar a pagina
+        listarNotas();
+    </script>
+</body>
+</html>
