@@ -72,10 +72,10 @@
     </div>
 
     <script>
-        // Chave local
+        /
         const CHAVE_STORAGE = 'minhasNotasSimples';
         
-        //dom
+       
         const listaNotasElemento = document.getElementById('lista-notas');
         const inputId = document.getElementById('nota-id');
         const inputTitulo = document.getElementById('nota-titulo');
@@ -83,20 +83,20 @@
 
     
 
-        // carrega notas do localstorage
+        
         function carregarNotas() {
-            // carregar JSON e converter para lista de objetos
+            
             const notasString = localStorage.getItem(CHAVE_STORAGE);
             return notasString ? JSON.parse(notasString) : [];
         }
 
-        // salva notas no localstorage
+        
         function armazenarNotas(notas) {
-            // mantem as notas salvas em formato JSON
+          
             localStorage.setItem(CHAVE_STORAGE, JSON.stringify(notas));
         }
 
-        // listagem
+        
         function listarNotas() {
             const notas = carregarNotas();
             listaNotasElemento.innerHTML = ''; 
@@ -110,7 +110,7 @@
                 const li = document.createElement('li');
                 li.className = 'item-nota';
                 
-                // abrir ao clicar
+              
                 li.innerHTML = `
                     <span style="flex-grow: 1;" onclick="prepararEdicao('${nota.id}')">
                         <strong>${nota.titulo}</strong>
@@ -122,7 +122,7 @@
             });
         }
         
-        // salvar nota
+
         function salvarNota() {
             const titulo = inputTitulo.value.trim();
             const conteudo = inputConteudo.value.trim();
@@ -136,16 +136,16 @@
             const idAtual = inputId.value;
 
             if (idAtual) {
-                // editar nota
+                
                 const notaExistente = notas.find(n => n.id === idAtual);
                 if (notaExistente) {
                     notaExistente.titulo = titulo;
                     notaExistente.conteudo = conteudo;
                 }
             } else {
-                // criar nota
+             
                 const novaNota = {
-                    id: Date.now().toString(), // ID simples
+                    id: Date.now().toString(), 
                     titulo: titulo,
                     conteudo: conteudo
                 };
@@ -157,7 +157,7 @@
             listarNotas();
         }
 
-        // função de preparar para edição
+        
         function prepararEdicao(id) {
             const notas = carregarNotas();
             const notaParaEditar = notas.find(n => n.id === id);
@@ -169,12 +169,12 @@
             }
         }
         
-        // excluir nota
+       
         function excluirNota(id) {
 
             if (confirm("Você tem certeza que quer deletar esta nota?")) {
                 let notas = carregarNotas();
-                // filtro para nota
+               
                 notas = notas.filter(n => n.id !== id);
 
                 armazenarNotas(notas);
@@ -183,15 +183,16 @@
             }
         }
         
-        // limpar formulario
+        
         function limparFormulario() {
             inputId.value = '';
             inputTitulo.value = '';
             inputConteudo.value = '';
         }
 
-        // carrega e lista as notas existentes ao carregar a pagina
+        
         listarNotas();
     </script>
 </body>
+
 </html>
